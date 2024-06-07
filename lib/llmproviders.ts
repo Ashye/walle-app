@@ -4,6 +4,8 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
 import { LanguageModel } from "ai";
 
+const OPEN_ROUTER_MODEL_LIST_URL = 'https://openrouter.ai/api/v1/models';
+
 const MODEL_SUPPROTED_LIST = {
     google: ['models/gemini-1.5-pro-latest'],
     openai: [''],
@@ -42,3 +44,13 @@ function createmodel(provider: string, model: string) {
     return null;
 }
 
+async function fetchOpenRouterModelList() {
+    const response = await fetch(OPEN_ROUTER_MODEL_LIST_URL, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    const result = await response.json();
+}
