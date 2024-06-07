@@ -3,32 +3,42 @@
 import { ChatStreaming } from "@/lib/providerbroker";
 import { CoreMessage } from "ai";
 import { readStreamableValue } from "ai/rsc";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
+import ChatHeader from "./header";
 
 
 
 export default function Chat() {
     const [messages, setMessages] = useState<CoreMessage[]>([]);
     const [input, setInput] = useState("");
+    const { pending } = useFormStatus();
+
+    const messageListRef = useRef(null);
+    useEffect(()=>{
+        if (messageListRef.current) {
+            messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+        }
+    }, [messages]);
 
     return (
-        <div className="flex flex-col h-full justify-between">
-            <div className="overflow-y-auto px-8 gap-1">
+        <div className="flex flex-col h-screen justify-between">
+            <ChatHeader />
+            <div ref={messageListRef} className="flex flex-col h-full overflow-y-scroll">
                 {messages.map((m, i) => (
-                    <div key={i} className={`flex items-center border min-h-10 rounded-md my-1 px-2 py-2 ${m.role !== 'user' ? 'bg-sky-50' : 'bg-gray-50'}`} >
+                    <div key={i} className={`items-center border-b border-1 px-12 py-3 ${m.role !== 'user' ? 'bg-sky-50' : 'bg-gray-50'}`} >
                         <p className={`${m.role !== 'user' ? 'whitespace-pre-wrap' : ''}`}>
                             <span className="font-bold capitalize">
                                 {m.role === 'user' ? "You: " : "Assitant: "}
                             </span>
                             {m.content as string}
                         </p>
-
                     </div>
                 ))}
             </div>
 
             <form
-                className="mx-24"
+                className="mx-12 sticky mb-0"
                 action={async () => {
                     const newMessages: CoreMessage[] = [
                         ...messages,
@@ -51,7 +61,7 @@ export default function Chat() {
                     }
                 }}
             >
-                <div className="flex justify-between items-center input input-bordered bottom-0 w-full mb-2 border rounded-xl z-10 shadow-xl">
+                <div className="flex justify-between items-center input input-bordered bottom-0 w-full mb-2 border rounded-xl z-10 shadow-xl" aria-disabled={pending}>
                     <input
                         className="w-full"
                         value={input}
